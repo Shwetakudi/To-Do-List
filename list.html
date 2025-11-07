@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ Premium To-Do List</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:"Poppins",sans-serif;
+  min-height:100vh;
+  display:flex;justify-content:center;align-items:center;
+  overflow:hidden;
+  transition:background 1s ease,color 0.5s ease;
+  position:relative;
+}
+
+/* 🌞 LIGHT MODE - Bolt.AI inspired */
+body.light-mode {
+  background: radial-gradient(circle at top left,#ffffff 0%,#f0f4ff 40%,#e0ecff 80%);
+  color:#1a1a1a;
+}
+body.light-mode::before,
+body.light-mode::after{
+  content:"";
+  position:absolute;
+  width:140%;height:140%;
+  top:-20%;left:-20%;
+  z-index:-3;
+  background:conic-gradient(from 45deg,#93c5fd,#a5f3fc,#fbcfe8,#fde68a,#93c5fd);
+  animation:spinBG 40s linear infinite;
+  opacity:0.25;
+  filter:blur(90px);
+}
+body.light-mode::after{
+  background:conic-gradient(from 180deg,#d8b4fe,#93c5fd,#f9a8d4,#fde68a,#d8b4fe);
+  animation:spinBG 60s linear infinite reverse;
+  opacity:0.2;
+}
+@keyframes spinBG{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+/* Floating glow orbs */
+.light-orb{
+  position:absolute;
+  border-radius:50%;
+  width:450px;height:450px;
+  filter:blur(180px);
+  opacity:0.35;
+  animation:floatOrb 10s ease-in-out infinite alternate;
+  z-index:-2;
+}
+#lightOrb1{background:radial-gradient(circle,#93c5fd,transparent);top:10%;left:10%;}
+#lightOrb2{background:radial-gradient(circle,#fbbf24,transparent);bottom:10%;right:10%;}
+#lightOrb3{background:radial-gradient(circle,#f9a8d4,transparent);top:50%;left:60%;}
+@keyframes floatOrb{from{transform:translateY(-20px);}to{transform:translateY(20px);}}
+
+/* 🌌 DARK MODE - Galaxy look */
+body.dark-mode {
+  background: radial-gradient(ellipse at center,#050518,#000);
+  color:#fff;
+}
+canvas#stars{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:-2;pointer-events:none;opacity:0;transition:opacity 1.5s ease;
+}
+body.dark-mode #stars{opacity:1;}
+body.dark-mode::before{
+  content:"";
+  position:absolute;
+  width:200%;height:200%;
+  top:-50%;left:-50%;
+  background:conic-gradient(from 0deg,#667eea,#764ba2,#3b82f6,#9333ea,#667eea);
+  opacity:0.25;animation:spinBG 25s linear infinite;
+  z-index:-3;
+}
+.glow-orb{
+  position:absolute;width:400px;height:400px;border-radius:50%;
+  filter:blur(150px);opacity:0.4;
+  animation:floatOrb 10s ease-in-out infinite alternate;
+  z-index:-2;
+}
+#orb1{background:radial-gradient(circle,#7c3aed,transparent);top:10%;left:10%;}
+#orb2{background:radial-gradient(circle,#06b6d4,transparent);bottom:10%;right:10%;}
+
+/* 📦 Container */
+.container{
+  background:rgba(255,255,255,0.85);
+  border-radius:25px;
+  box-shadow:0 25px 60px rgba(0,0,0,0.15);
+  width:100%;max-width:520px;padding:40px;
+  position:relative;transition:all 0.8s ease;
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.3);
+  z-index:1;
+}
+body.dark-mode .container{
+  background:rgba(25,25,40,0.6);
+  backdrop-filter:blur(15px);
+  box-shadow:0 0 40px rgba(118,75,162,0.4),0 0 80px rgba(59,130,246,0.2);
+  transform:translateY(-5px);
+}
+
+/* Header */
+h1{text-align:center;font-size:34px;font-weight:700;margin-bottom:25px;color:#1f2937;}
+body.dark-mode h1{color:#dbeafe;text-shadow:0 0 15px #60a5fa;}
+
+/* Theme toggle */
+.theme-toggle{
+  position:absolute;top:20px;right:20px;
+  background:white;border:none;border-radius:50%;
+  width:42px;height:42px;cursor:pointer;font-size:20px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.4s ease;box-shadow:0 3px 10px rgba(0,0,0,0.2);
+}
+.theme-toggle:hover{transform:rotate(180deg) scale(1.1);background:#667eea;color:white;}
+body.dark-mode .theme-toggle{
+  background:rgba(255,255,255,0.15);color:#fff;
+  border:1px solid rgba(255,255,255,0.3);
+  box-shadow:0 0 10px rgba(255,255,255,0.2);
+}
+
+/* Inputs & Buttons */
+.input-container{display:flex;gap:10px;margin-bottom:20px;}
+#taskInput{
+  flex:1;padding:14px;border:2px solid #e2e8f0;border-radius:10px;font-size:16px;outline:none;
+  transition:all 0.3s ease;
+}
+#taskInput:focus{border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.2);}
+body.dark-mode #taskInput{
+  background:rgba(255,255,255,0.1);color:#e0e0ff;border:1px solid rgba(255,255,255,0.2);
+}
+#addBtn{
+  padding:14px 28px;background:linear-gradient(135deg,#667eea,#764ba2);
+  color:white;border:none;border-radius:10px;font-weight:600;cursor:pointer;
+  transition:all 0.3s ease;
+}
+#addBtn:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(118,75,162,0.5);}
+
+/* Task List */
+#taskList{list-style:none;margin-top:10px;max-height:300px;overflow-y:auto;}
+.task-item{
+  background:#f7fafc;border-radius:12px;padding:14px;margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:all 0.3s ease;animation:slideIn 0.4s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px);}to{opacity:1;transform:translateX(0);}}
+body.dark-mode .task-item{background:rgba(255,255,255,0.08);color:#e0e0ff;}
+.task-item.completed .task-text{text-decoration:line-through;color:#a0aec0;opacity:0.7;}
+.task-item:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+
+/* Buttons inside tasks */
+.task-actions{display:flex;gap:6px;}
+.edit-btn,.delete-btn{
+  padding:7px 14px;border:none;border-radius:6px;font-size:14px;cursor:pointer;transition:all 0.3s ease;
+}
+.edit-btn{background:#48bb78;color:white;}
+.delete-btn{background:#f56565;color:white;}
+.edit-btn:hover{background:#38a169;transform:scale(1.05);}
+.delete-btn:hover{background:#e53e3e;transform:scale(1.05);}
+
+/* Filter */
+.filter-container{display:flex;justify-content:center;margin-top:20px;gap:10px;}
+.filter-btn{
+  background:#edf2f7;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;
+  font-weight:600;transition:all 0.3s ease;
+}
+.filter-btn.active{background:#667eea;color:white;}
+body.dark-mode .filter-btn{background:rgba(255,255,255,0.15);color:#dbeafe;}
+.filter-btn:hover{background:#667eea;color:white;transform:translateY(-2px);}
+.empty-state{text-align:center;color:#a0aec0;padding:40px 20px;}
+.checkbox{margin-right:10px;cursor:pointer;width:18px;height:18px;accent-color:#667eea;}
+</style>
+</head>
+<body class="light-mode">
+<div id="lightOrb1" class="light-orb"></div>
+<div id="lightOrb2" class="light-orb"></div>
+<div id="lightOrb3" class="light-orb"></div>
+<canvas id="stars"></canvas>
+<div class="glow-orb" id="orb1"></div>
+<div class="glow-orb" id="orb2"></div>
+
+<div class="container">
+  <button class="theme-toggle" id="themeToggle">🌙</button>
+  <h1>⚡ Premium To-Do List</h1>
+  <div class="input-container">
+    <input type="text" id="taskInput" placeholder="Add a new task...">
+    <button id="addBtn">Add</button>
+  </div>
+  <ul id="taskList"></ul>
+  <div class="empty-state" id="emptyState">No tasks yet. Add one to get started!</div>
+  <div class="filter-container">
+    <button class="filter-btn active" onclick="setFilter('all')">All</button>
+    <button class="filter-btn" onclick="setFilter('active')">Active</button>
+    <button class="filter-btn" onclick="setFilter('completed')">Completed</button>
+  </div>
+</div>
+
+<script>
+/* Stars background for dark mode */
+const starsCanvas=document.getElementById("stars");
+const ctx=starsCanvas.getContext("2d");
+let stars=[];
+function initStars(){
+  starsCanvas.width=window.innerWidth;
+  starsCanvas.height=window.innerHeight;
+  stars=Array.from({length:150},()=>({x:Math.random()*starsCanvas.width,y:Math.random()*starsCanvas.height,r:Math.random()*1.2,d:Math.random()*1.2}));
+}
+function drawStars(){
+  ctx.clearRect(0,0,starsCanvas.width,starsCanvas.height);
+  ctx.fillStyle="white";ctx.beginPath();
+  for(const s of stars){ctx.moveTo(s.x,s.y);ctx.arc(s.x,s.y,s.r,0,Math.PI*2);}
+  ctx.fill();updateStars();
+}
+function updateStars(){for(const s of stars){s.y+=s.d*0.4;if(s.y>starsCanvas.height){s.y=0;s.x=Math.random()*starsCanvas.width;}}}
+function animateStars(){drawStars();requestAnimationFrame(animateStars);}
+initStars();animateStars();window.addEventListener("resize",initStars);
+
+/* To-Do logic */
+const taskInput=document.getElementById("taskInput");
+const addBtn=document.getElementById("addBtn");
+const taskList=document.getElementById("taskList");
+const emptyState=document.getElementById("emptyState");
+const themeToggle=document.getElementById("themeToggle");
+let tasks=JSON.parse(localStorage.getItem("tasks"))||[];
+let filter="all";
+function saveTasks(){localStorage.setItem("tasks",JSON.stringify(tasks));}
+function renderTasks(){
+  taskList.innerHTML="";
+  const filtered=tasks.filter(t=>filter==="all"||(filter==="active"&&!t.completed)||(filter==="completed"&&t.completed));
+  emptyState.style.display=filtered.length?"none":"block";
+  filtered.forEach(task=>{
+    const li=document.createElement("li");
+    li.className="task-item"+(task.completed?" completed":"");
+    li.innerHTML=`<input type="checkbox" class="checkbox" ${task.completed?"checked":""} onclick="toggleComplete(${task.id})">
+    <span class="task-text">${escapeHtml(task.text)}</span>
+    <div class="task-actions"><button class="edit-btn" onclick="editTask(${task.id})">Edit</button>
+    <button class="delete-btn" onclick="deleteTask(${task.id})">Delete</button></div>`;
+    taskList.appendChild(li);
+  });
+}
+function escapeHtml(t){const d=document.createElement("div");d.textContent=t;return d.innerHTML;}
+function addTask(){const text=taskInput.value.trim();if(!text)return;
+  tasks.push({id:Date.now(),text,completed:false});
+  saveTasks();renderTasks();taskInput.value="";
+}
+function editTask(id){const t=tasks.find(x=>x.id===id);
+  const newText=prompt("Edit your task:",t.text);
+  if(newText&&newText.trim()!==""){t.text=newText.trim();saveTasks();renderTasks();}
+}
+function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);saveTasks();renderTasks();}
+function toggleComplete(id){const t=tasks.find(x=>x.id===id);t.completed=!t.completed;saveTasks();renderTasks();}
+function setFilter(f){filter=f;document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+  event.target.classList.add("active");renderTasks();}
+function toggleTheme(){
+  const body=document.body;
+  body.classList.toggle("dark-mode");
+  body.classList.toggle("light-mode");
+  const isDark=body.classList.contains("dark-mode");
+  themeToggle.textContent=isDark?"🌌":"🌙";
+  localStorage.setItem("theme",isDark?"dark":"light");
+}
+function loadTheme(){
+  const saved=localStorage.getItem("theme");
+  if(saved==="dark"){document.body.classList.add("dark-mode");themeToggle.textContent="🌌";}
+  else{document.body.classList.add("light-mode");themeToggle.textContent="🌙";}
+}
+addBtn.addEventListener("click",addTask);
+taskInput.addEventListener("keypress",e=>{if(e.key==="Enter")addTask();});
+themeToggle.addEventListener("click",toggleTheme);
+loadTheme();renderTasks();
+</script>
+</body>
+</html>
